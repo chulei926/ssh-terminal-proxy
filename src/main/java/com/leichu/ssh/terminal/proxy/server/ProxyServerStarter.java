@@ -30,6 +30,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -264,11 +265,15 @@ public class ProxyServerStarter implements CommandLineRunner {
 				logger.info(">>>登录<<< {}", sshAuthParam.toString());
 				SshSession sshSession = new SshSession(sshAuthParam);
 				sshSession.connect();
-				channelShell = SshChannelHelper.getChannelShell(sshSession, new Callback<String>() {
+				channelShell = SshChannelHelper.getChannelShell(sshSession, new Callback() {
 					@Override
-					public void emit(String rawSid) {
-						logger.info("ChannelShell closed callback! rawSid:{}", rawSid);
+					public void emit(Object o) {
+						logger.info("ChannelShell closed callback!");
 						bind.set(Boolean.FALSE);
+						// 退出回话
+						try {
+							printExit();
+						} catch (Exception e){}
 					}
 				});
 				clientOutputStream.write("\r\nLogin Success!\r\n".getBytes(StandardCharsets.UTF_8));

@@ -38,13 +38,12 @@ public class SshChannelHelper {
 			channel = sshSession.getSession().createShellChannel(ptyChannelConfiguration, new HashMap<>());
 			channel.setRedirectErrorStream(true);
 			channel.open().verify(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			String rawSid = new String(channel.getSession().getSessionId());
 			channel.addCloseFutureListener(future -> {
 				// SSH 通道关闭监听器 -- Add by chul at 2023-09-15
 				if (future.isClosed()) {
 					logger.warn("Close channel listener: SSH channel closed!");
 					IOUtils.closeQuietly(channel.getInvertedIn(), channel.getInvertedOut(), channel.getInvertedErr());
-					channelCloseCallback.emit(rawSid);
+					channelCloseCallback.emit(null);
 				}
 			});
 
